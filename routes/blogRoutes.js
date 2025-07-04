@@ -3,6 +3,7 @@ const router = express.Router();
 const blogController = require('../controllers/blogController');
 const verifyAccessToken = require('../middleware/authMiddleware'); 
 
+//public
 router.get('/', blogController.getAllBlogs);
 router.get('/:blogId', blogController.getBlogById);
 

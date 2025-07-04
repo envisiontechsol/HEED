@@ -1,0 +1,971 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Heed API Documentation",
+    "version": "1.0.0",
+    "description": "API documentation for HEED project including Auth, Users, Blogs, Comments, and Investors."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "user@example.com",
+                "password": "yourPassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Login successful",
+                  "accessToken": "JWT_ACCESS_TOKEN_HERE",
+                  "user": {
+                    "userId": "uuid",
+                    "userName": "your username",
+                    "email": "user@example.com",
+                    "phoneNo" : "1122334455",
+                    "role": "user",
+                    "createdOn": "2025-06-29T18:30:00.000Z",
+                    "userImage": "https://1eg.com/other.png"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+        "description": "Internal Server Error"
+      }
+        }
+      }
+    },
+
+
+
+
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "userName": "rohan",
+                "email": "rohan@example.com",
+                "phoneNo": "9876543210",
+                "password": "test1234",
+                "role": "user",
+                "userImage": "https://example.com/rohan.png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User registered successfully",
+                  "user": {
+                    "userId": "uuid-v4",
+                    "userName": "rohan",
+                    "email": "rohan@example.com",
+                    "phoneNo": "9876543210",
+                    "role": "user",
+                    "createdOn": "2025-06-29T18:30:00.000Z",
+                    "userImage": "https://example.com/rohan.png"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email already registered"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+
+
+
+            
+    "/api/auth/refresh": {              
+    "post": {
+    "tags": ["Auth"],
+    "summary": "Refresh access token using refresh token stored in cookie",
+    "description": "Uses the refresh token from httpOnly cookie to issue a new access token.",
+    "responses": {
+      "200": {
+        "description": "New access token issued",
+        "content": {
+          "application/json": {
+            "example": {
+              "accessToken": "NEW_JWT_ACCESS_TOKEN"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "No refresh token found"
+      },
+      "403": {
+        "description": "Token expired or invalid"
+      }
+    }
+  }
+},
+
+
+
+    "/api/auth/logout": {
+  "post": {
+    "tags": ["Auth"],
+    "summary": "Logout user",
+    "description": "Clears refresh token cookie and removes it from the database to logout user securely.",
+    "responses": {
+      "200": {
+        "description": "Logout successful",
+        "content": {
+          "application/json": {
+            "example": {
+              "message": "Logged out successfully"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "No refresh token provided"
+      },
+      "500": {
+        "description": "Server error during logout"
+      }
+    }
+  }
+},
+
+
+
+
+"/api/users": {
+  "get": {
+    "tags": ["Users"],
+    "summary": "Get all users",
+    "description": "Returns a list of all registered users.",
+    "responses": {
+      "200": {
+        "description": "List of users",
+        "content": {
+          "application/json": {
+            "example": [
+              {
+                "userId": "uuid-v4",
+                "userName": "Rohan",
+                "email": "rohan@example.com",
+                "phoneNo": "9876543210",
+                "password" : "yourPassword (hashed)",
+                "createdOn": "2025-06-29T18:30:00.000Z",
+                "role": "user",
+                "userImage": "https://example.com/image.png",
+                "refreshToken" : "refresh_token"
+              }
+            ]
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error at getAllUsers"
+      }
+    }
+  },
+  "post": {
+    "tags": ["Users"],
+    "summary": "Create a new user",
+    "description": "Registers a new user account.",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "userName": "Rohan",
+            "email": "rohan@example.com",
+            "phoneNo": "9876543210",
+            "password": "securepassword123",
+            "createdOn": "2025-07-03T10:15:00.000Z",
+            "role": "user",
+            "userImage": "https://example.com/image.png"
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "User created successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "userId": "uuid-v4",
+              "userName": "Rohan",
+              "email": "rohan@example.com",
+              "phoneNo": "9876543210",
+              "role": "user",
+              "createdOn": "2025-07-03T10:15:00.000Z",
+              "userImage": "https://example.com/image.png"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error at createUser"
+      }
+    }
+  }
+},
+"/api/users/{userId}": {
+  "get": {
+    "tags": ["Users"],
+    "summary": "Get user by ID",
+    "description": "Fetch a single user by their unique ID.",
+    "parameters": [
+      {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the user to fetch",
+        "schema": {
+          "type": "string",
+          "example": "53874df7-d4ff-4835-b754-553cdc30409d"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "User details",
+        "content": {
+          "application/json": {
+            "example": {
+              "userId": "53874df7-d4ff-4835-b754-553cdc30409d",
+              "userName": "Rohan",
+              "email": "rohan@example.com",
+              "phoneNo": "9876543210",
+              "role": "user",
+              "createdOn": "2025-06-29T18:30:00.000Z",
+              "userImage": "https://example.com/image.png"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "User not found"
+      },
+      "500": {
+        "description": "Internal Server Error at getUserById"
+      }
+    }
+  },
+  "put": {
+    "tags": ["Users"],
+    "summary": "Update user by ID",
+    "description": "Updates user information based on the provided user ID. Requires a valid access token.",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the user to update",
+        "schema": {
+          "type": "string",
+          "example": "53874df7-d4ff-4835-b754-553cdc30409d"
+        }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "userName": "Updated Rohan",
+            "email": "rohan.updated@example.com",
+            "phoneNo": "9998887777",
+            "password": "newPassword",
+            "role": "admin",
+            "userImage": "https://example.com/updated.png"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "User updated successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "userId": "53874df7-d4ff-4835-b754-553cdc30409d",
+              "userName": "Updated Rohan",
+              "email": "rohan.updated@example.com",
+              "phoneNo": "9998887777",
+              "role": "admin",
+              "userImage": "https://example.com/updated.png"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "User not found for update"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error at updateUser"
+      }
+    }
+  },
+  "delete": {
+    "tags": ["Users"],
+    "summary": "Delete user by ID",
+    "description": "Deletes a user based on the provided ID. Requires a valid access token.",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the user to delete",
+        "schema": {
+          "type": "string",
+          "example": "53874df7-d4ff-4835-b754-553cdc30409d"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "User deleted successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "message": "User deleted successfully"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "User not found"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error at deleteUser"
+      }
+    }
+  }
+},
+
+
+
+"/api/investors": {
+  "get": {
+    "tags": ["Investors"],
+    "summary": "Get all investors",
+    "description": "Fetches a list of all investors. Requires a valid access token.",
+    "security": [{ "bearerAuth": [] }],
+    "responses": {
+      "200": {
+        "description": "List of investors",
+        "content": {
+          "application/json": {
+            "example": [
+              {
+                "investorId": "e53b3c4e-b9a2-4b69-89aa-1234567890ab",
+                "userId": "3fc9fa3e-3d14-4e20-bf8a-1234567890ab",
+                "companyName": "TechVenture",
+                "whatULookFor": "Disruptive AI startups",
+                "investorAmount": 2500000,
+                "createdAt": "2025-07-03T12:00:00.000Z"
+              }
+            ]
+          }
+        }
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "post": {
+    "tags": ["Investors"],
+    "summary": "Create a new investor",
+    "description": "Adds a new investor to the system. Requires a valid access token.",
+    "security": [{ "bearerAuth": [] }],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "userId": "3fc9fa3e-3d14-4e20-bf8a-1234567890ab",
+            "companyName": "TechVenture",
+            "whatULookFor": "Disruptive AI startups",
+            "investorAmount": 2500000
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Investor created successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "investorId": "e53b3c4e-b9a2-4b69-89aa-1234567890ab",
+              "userId": "3fc9fa3e-3d14-4e20-bf8a-1234567890ab",
+              "companyName": "TechVenture",
+              "whatULookFor": "Disruptive AI startups",
+              "investorAmount": 2500000,
+              "createdAt": "2025-07-03T12:00:00.000Z"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Missing or invalid input data"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      }
+    }
+  }
+},
+
+"/api/investors/{investorId}": {
+  "put": {
+    "tags": ["Investors"],
+    "summary": "Update investor by ID",
+    "description": "Updates investor details by ID. Requires a valid access token.",
+    "security": [{ "bearerAuth": [] }],
+    "parameters": [
+      {
+        "name": "investorId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the investor to update",
+        "schema": {
+          "type": "string",
+          "example": "e53b3c4e-b9a2-4b69-89aa-1234567890ab"
+        }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "companyName": "Updated TechVenture",
+            "whatULookFor": "Sustainable tech innovations",
+            "investorAmount": 3000000
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Investor updated successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "investorId": "e53b3c4e-b9a2-4b69-89aa-1234567890ab",
+              "userId": "3fc9fa3e-3d14-4e20-bf8a-1234567890ab",
+              "companyName": "Updated TechVenture",
+              "whatULookFor": "Sustainable tech innovations",
+              "investorAmount": 3000000,
+              "createdAt": "2025-07-03T12:00:00.000Z"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Investor not found"
+      },
+      "400": {
+        "description": "Invalid input"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      }
+    }
+  },
+
+  "delete": {
+    "tags": ["Investors"],
+    "summary": "Delete investor by ID",
+    "description": "Deletes the investor with the given ID. Requires a valid access token.",
+    "security": [{ "bearerAuth": [] }],
+    "parameters": [
+      {
+        "name": "investorId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the investor to delete",
+        "schema": {
+          "type": "string",
+          "example": "e53b3c4e-b9a2-4b69-89aa-1234567890ab"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Investor deleted successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "message": "Investor deleted successfully"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Investor not found"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      }
+    }
+  }
+},
+
+
+
+
+"/api/blogs": {
+  "get": {
+    "tags": ["Blogs"],
+    "summary": "Get all blogs",
+    "description": "Fetch all blog posts. Public route.",
+    "responses": {
+      "200": {
+        "description": "List of all blogs",
+        "content": {
+          "application/json": {
+            "example": [
+              {
+                "blogId": "uuid",
+                "userId": "user-uuid",
+                "blogTitle": "First Blog",
+                "blogDesc": "This is the content of the first blog post.",
+                "imageUrl": "https://example.com/image.jpg",
+                "createdOn": "2025-07-03T10:00:00.000Z"
+              }
+            ]
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "post": {
+    "tags": ["Blogs"],
+    "summary": "Create a blog",
+    "description": "Create a new blog post. Requires access token.",
+    "security": [{ "bearerAuth": [] }],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "userId": "user-uuid",
+            "blogTitle": "New Blog Title",
+            "blogDesc": "Detailed blog content goes here...",
+            "imageUrl": "https://example.com/image.jpg",
+            "createdOn": "2025-07-03T10:15:00.000Z"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Blog created successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "blogId": "uuid",
+              "userId": "user-uuid",
+              "blogTitle": "New Blog Title",
+              "blogDesc": "Detailed blog content goes here...",
+              "imageUrl": "https://example.com/image.jpg",
+              "createdOn": "2025-07-03T10:15:00.000Z"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+},
+
+"/api/blogs/{blogId}": {
+  "get": {
+    "tags": ["Blogs"],
+    "summary": "Get blog by ID",
+    "description": "Fetch a single blog post by ID. Public route.",
+    "parameters": [
+      {
+        "name": "blogId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the blog post",
+        "schema": {
+          "type": "string",
+          "example": "d382af1a-5fb3-4c2a-9a5e-8e0bc5cbbac6"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Single blog post details",
+        "content": {
+          "application/json": {
+            "example": {
+              "blogId": "uuid",
+              "userId": "user-uuid",
+              "blogTitle": "First Blog",
+              "blogDesc": "This is the content of the first blog post.",
+              "imageUrl": "https://example.com/image.jpg",
+              "createdOn": "2025-07-03T10:00:00.000Z"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Blog not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+
+  "put": {
+    "tags": ["Blogs"],
+    "summary": "Update blog by ID",
+    "description": "Update an existing blog post. Requires access token.",
+    "security": [{ "bearerAuth": [] }],
+    "parameters": [
+      {
+        "name": "blogId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the blog post",
+        "schema": {
+          "type": "string",
+          "example": "d382af1a-5fb3-4c2a-9a5e-8e0bc5cbbac6"
+        }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "blogTitle": "Updated Blog Title",
+            "blogDesc": "Updated blog content goes here...",
+            "imageUrl": "https://example.com/new-image.jpg"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Blog updated successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "blogId": "uuid",
+              "userId": "user-uuid",
+              "blogTitle": "Updated Blog Title",
+              "blogDesc": "Updated blog content goes here...",
+              "imageUrl": "https://example.com/new-image.jpg",
+              "createdOn": "2025-07-03T10:00:00.000Z"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Blog not found"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+
+  "delete": {
+    "tags": ["Blogs"],
+    "summary": "Delete blog by ID",
+    "description": "Delete a blog post by ID. Requires access token.",
+    "security": [{ "bearerAuth": [] }],
+    "parameters": [
+      {
+        "name": "blogId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the blog post to delete",
+        "schema": {
+          "type": "string",
+          "example": "d382af1a-5fb3-4c2a-9a5e-8e0bc5cbbac6"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Blog deleted successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "message": "Blog deleted"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Blog not found"
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+},
+
+
+
+
+
+"/api/comments": {
+  "get": {
+    "tags": ["Comments"],
+    "summary": "Get all comments",
+    "description": "Fetches all comments from all blogs. Public route.",
+    "responses": {
+      "200": {
+        "description": "List of all comments",
+        "content": {
+          "application/json": {
+            "example": [
+              {
+                "commentId": "uuid",
+                "blogId": "uuid",
+                "userId": "uuid",
+                "commentText": "Great post!",
+                "createdOn": "2025-06-29T18:30:00.000Z"
+              }
+            ]
+          }
+        }
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "post": {
+    "tags": ["Comments"],
+    "summary": "Create a comment",
+    "description": "Create a new comment on a blog post. Requires access token.",
+    "security": [{ "bearerAuth": [] }],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "blogId": "uuid-of-blog",
+            "commentText": "This is a great article!"
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Comment created",
+        "content": {
+          "application/json": {
+            "example": {
+              "commentId": "uuid",
+              "blogId": "uuid",
+              "userId": "uuid",
+              "commentText": "This is a great article!",
+              "createdOn": "2025-07-03T10:00:00.000Z"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+},
+"/api/comments/{commentId}": {
+  "put": {
+    "tags": ["Comments"],
+    "summary": "Update a comment",
+    "description": "Update a comment's text. Requires access token.",
+    "security": [{ "bearerAuth": [] }],
+    "parameters": [
+      {
+        "name": "commentId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "UUID of the comment to update"
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "example": {
+            "commentText": "Updated comment text"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Comment updated successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "message": "Comment updated successfully"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "404": {
+        "description": "Comment not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  },
+  "delete": {
+    "tags": ["Comments"],
+    "summary": "Delete a comment",
+    "description": "Delete a comment by ID. Requires access token.",
+    "security": [{ "bearerAuth": [] }],
+    "parameters": [
+      {
+        "name": "commentId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "UUID of the comment to delete"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Comment deleted successfully",
+        "content": {
+          "application/json": {
+            "example": {
+              "message": "Comment deleted successfully"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Access token missing or invalid"
+      },
+      "404": {
+        "description": "Comment not found"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    }
+  }
+},
+
+
+
+
+"components": {
+  "securitySchemes": {
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT"
+    }
+  }
+}
+
+
+  }
+}   
